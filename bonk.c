@@ -1,6 +1,5 @@
 //John Harvey
-//CS3240
-//Shell 
+//Shell
 
 #include <stdio.h>
 #include <string.h>
@@ -27,12 +26,9 @@ int main(int argc, char *argv[])
 
     	else
     	{
-    		j = makeargv(input, "|", &ExecVectors);		
+    		j = makeargv(input, "|", &ExecVectors);
     		pipeExec(ExecVectors, j);
     	}
 	}
 	return 0;
 }
-
-
-

@@ -1,6 +1,5 @@
 //John Harvey
-//CS3240
-//Shell 
+//Shell
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,16 +12,16 @@
 #define READ (O_RDONLY)
 #define WRITE (O_WRONLY | O_CREAT)
 #define IN (STDIN_FILENO)
-#define OUT (STDOUT_FILENO)  
+#define OUT (STDOUT_FILENO)
 #define ERR (STDERR_FILENO)
 
 
 /* Function to help with the redirection */
-void redirectFunc(const char *filename, int flags, int fileno) 
+void redirectFunc(const char *filename, int flags, int fileno)
 {
     int fno = open(filename, flags);	// open file to redirect
 
-    if (fno < 0) 
+    if (fno < 0)
     {
         fprintf(stderr, "could not open file %s\n", filename);	// error check
         exit(-1);
@@ -39,20 +38,20 @@ void redirectFunc(const char *filename, int flags, int fileno)
 char* strip(char *s)
 {
     char *back = s + strlen(s);
-    
+
     while ((* --back ) == ' ');
-    *(back + 1) = '\0';      
-    
-    while ((*s) == ' ') s++; 
-    
-    return s; 
+    *(back + 1) = '\0';
+
+    while ((*s) == ' ') s++;
+
+    return s;
 }
 
 /* function to fork the process, make the args, and execute redirection */
 void forkExec(char *command, int fdin, int fdout)
 {
     int i, n;
-    char **ExecVectors;    
+    char **ExecVectors;
     pid_t pid;
 
     printf( "The process identifier (pid) of the parent process is %d\n", (int)getpid()); // print out pid for testing purposes
@@ -61,7 +60,7 @@ void forkExec(char *command, int fdin, int fdout)
 	{
 		fprintf(stderr, "fork error \n");		//error handle
 	}
-    
+
     else if (pid == 0)  /* child */
     {
     	printf( "After the fork, the process identifier (pid) "		// print out pid for testing purposes
@@ -76,35 +75,35 @@ void forkExec(char *command, int fdin, int fdout)
         {
             dup2(fdout, OUT);
             close(fdout);
-        }        
-        
+        }
+
         n = makeargv(command, "<", &ExecVectors);		// do redirection for <
         if (n > 1 && fdin == IN)
         {
             command = ExecVectors[0];
             redirectFunc(strip(ExecVectors[1]), O_RDONLY, IN);
         }
-        
+
         n = makeargv(command, ">", &ExecVectors);		// do redirection for >
         if (n > 1 && fdout == OUT)
         {
             command = ExecVectors[0];
             redirectFunc(strip(ExecVectors[1]), WRITE, OUT);
         }
-        
+
         n = makeargv(command, " ", &ExecVectors);
         execvp(strip(ExecVectors[0]), ExecVectors);
-        
-    } 
+
+    }
     else /* Parent */
     {
         wait(NULL);
-        
+
         if (fdin != IN)
             close(fdin);	// close in
-        
+
         if (fdout != OUT)
-            close(fdout);   // close out     
+            close(fdout);   // close out
     }
 }
 
@@ -121,7 +120,7 @@ void pipeExec(char **ExecVectors, int n)
             forkExec(ExecVectors[i], fdin, fd[1]);
             fdin = fd[0];
         }
-        else  
+        else
         {
             forkExec(ExecVectors[i], fdin, OUT);
         }
